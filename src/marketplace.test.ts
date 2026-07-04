@@ -16,14 +16,17 @@ describe('marketplace.json', () => {
     expect(parsed.name.length).toBeGreaterThan(0);
   });
 
-  it('GIVEN the marketplace WHEN read THEN it has a non-empty owner name', () => {
+  it('GIVEN the marketplace WHEN read THEN it has a non-empty interface displayName', () => {
     const parsed = MarketplaceSchema.parse(loadMarketplace());
-    expect(parsed.owner.name.length).toBeGreaterThan(0);
+    expect(parsed.interface.displayName.length).toBeGreaterThan(0);
   });
 
-  it('GIVEN the marketplace WHEN read THEN it has a non-empty description', () => {
+  it('GIVEN each plugin entry WHEN source discriminator checked THEN it is a local source', () => {
     const parsed = MarketplaceSchema.parse(loadMarketplace());
-    expect(parsed.description.length).toBeGreaterThan(0);
+    for (const plugin of parsed.plugins) {
+      expect(plugin.source.source).toBe('local');
+      expect(plugin.source.path.length).toBeGreaterThan(0);
+    }
   });
 
   it('GIVEN the marketplace WHEN plugins listed THEN at least one plugin is declared with unique names', () => {

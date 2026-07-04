@@ -2,7 +2,10 @@
   "name": "lantern",
   "version": "0.1.0",
   "description": "Bring Lantern's AI-visibility, citations, product data quality, and website AI-readiness analysis into Codex. Pick a brand and ask.",
-  "author": "Lantern",
+  "author": {
+    "name": "Lantern",
+    "url": "https://lantern.is"
+  },
   "license": "MIT",
   "homepage": "https://lantern.is",
   "repository": "https://github.com/lanterninc/codex-plugins",

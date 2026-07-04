@@ -1,5 +1,5 @@
 {
-  "mcpServers": {
+  "mcp_servers": {
     "lantern": {
       "url": "https://agent.lantern.is/agent/mcp"
     }

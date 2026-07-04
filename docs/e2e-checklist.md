@@ -2,8 +2,9 @@
 
 Run against production (`agent.lantern.is`) in Codex CLI.
 
-1. **Load:** install/point Codex at `./plugins/lantern` — no load errors;
-   `/skills` lists the skills; `/agent` (or `.codex/agents/`) shows `lantern-analyst`.
+1. **Load:** `codex plugin marketplace add lanterninc/codex-plugins`, then install
+   `lantern` from the `/plugins` picker — no load errors; `/skills` lists the skills;
+   `/agent` (or `.codex/agents/`) shows `lantern-analyst`.
 2. **OAuth:** `codex mcp login lantern` → browser opens to the Lantern consent
    page → log in → pick brand(s) → approve. `codex mcp list` (or `/mcp` in the TUI)
    shows the `lantern` server connected with a tool count of 25.

@@ -13,7 +13,7 @@ describe('MarketplacePluginEntrySchema', () => {
   it('GIVEN a valid entry WHEN parsed THEN succeeds', () => {
     const result = MarketplacePluginEntrySchema.safeParse({
       name: 'lantern',
-      source: { path: './plugins/lantern' },
+      source: { source: 'local', path: './plugins/lantern' },
       description: 'A plugin',
     });
     expect(result.success).toBe(true);
@@ -22,7 +22,7 @@ describe('MarketplacePluginEntrySchema', () => {
   it('GIVEN an entry with empty name WHEN parsed THEN fails', () => {
     const result = MarketplacePluginEntrySchema.safeParse({
       name: '',
-      source: { path: './plugins/lantern' },
+      source: { source: 'local', path: './plugins/lantern' },
       description: 'A plugin',
     });
     expect(result.success).toBe(false);
@@ -32,6 +32,15 @@ describe('MarketplacePluginEntrySchema', () => {
     const result = MarketplacePluginEntrySchema.safeParse({
       name: 'lantern',
       source: './plugins/lantern',
+      description: 'A plugin',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('GIVEN an entry whose source object omits the discriminator WHEN parsed THEN fails', () => {
+    const result = MarketplacePluginEntrySchema.safeParse({
+      name: 'lantern',
+      source: { path: './plugins/lantern' },
       description: 'A plugin',
     });
     expect(result.success).toBe(false);
@@ -49,19 +58,29 @@ describe('MarketplacePluginEntrySchema', () => {
 describe('MarketplaceSchema', () => {
   const validMarketplace = {
     name: 'lantern',
-    description: 'Test marketplace',
-    owner: { name: 'Lantern', url: 'https://lantern.is' },
-    plugins: [{ name: 'lantern', source: { path: './plugins/lantern' }, description: 'desc' }],
+    interface: { displayName: 'Lantern' },
+    plugins: [
+      { name: 'lantern', source: { source: 'local', path: './plugins/lantern' }, description: 'desc' },
+    ],
   };
 
   it('GIVEN a valid marketplace WHEN parsed THEN succeeds', () => {
     expect(MarketplaceSchema.safeParse(validMarketplace).success).toBe(true);
   });
 
-  it('GIVEN marketplace with non-URL owner url WHEN parsed THEN fails', () => {
+  it('GIVEN marketplace missing the interface displayName WHEN parsed THEN fails', () => {
     const result = MarketplaceSchema.safeParse({
       ...validMarketplace,
-      owner: { name: 'Lantern', url: 'not-a-url' },
+      interface: {},
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('GIVEN marketplace with a Claude-style owner and no interface WHEN parsed THEN fails', () => {
+    const result = MarketplaceSchema.safeParse({
+      name: 'lantern',
+      owner: { name: 'Lantern', url: 'https://lantern.is' },
+      plugins: validMarketplace.plugins,
     });
     expect(result.success).toBe(false);
   });
@@ -77,7 +96,7 @@ describe('PluginManifestSchema', () => {
     name: 'lantern',
     description: 'A plugin',
     version: '1.2.3',
-    author: 'Lantern',
+    author: { name: 'Lantern', url: 'https://lantern.is' },
     license: 'MIT',
   };
 
@@ -118,6 +137,11 @@ describe('PluginManifestSchema', () => {
     const result = PluginManifestSchema.safeParse({ ...validManifest, homepage: 'not-a-url' });
     expect(result.success).toBe(false);
   });
+
+  it('GIVEN a manifest with a bare-string author WHEN parsed THEN fails (Codex author is an object)', () => {
+    const result = PluginManifestSchema.safeParse({ ...validManifest, author: 'Lantern' });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe('McpServerSchema', () => {
@@ -151,14 +175,14 @@ describe('McpServerSchema', () => {
 });
 
 describe('McpConfigSchema', () => {
-  it('GIVEN a config missing mcpServers WHEN parsed THEN fails', () => {
+  it('GIVEN a config missing mcp_servers WHEN parsed THEN fails', () => {
     const result = McpConfigSchema.safeParse({});
     expect(result.success).toBe(false);
   });
 
-  it('GIVEN a config with a valid server WHEN parsed THEN succeeds', () => {
+  it('GIVEN a config with a valid server under mcp_servers WHEN parsed THEN succeeds', () => {
     const result = McpConfigSchema.safeParse({
-      mcpServers: { lantern: { url: 'https://agent.lantern.is/agent/mcp' } },
+      mcp_servers: { lantern: { url: 'https://agent.lantern.is/agent/mcp' } },
     });
     expect(result.success).toBe(true);
   });

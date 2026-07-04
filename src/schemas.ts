@@ -4,20 +4,22 @@ import { z } from 'zod';
 // Marketplace schema (Codex: .agents/plugins/marketplace.json)
 // ---------------------------------------------------------------------------
 
-/** A marketplace plugin entry. Codex points `source` at a plugin dir via `{ path }`. */
+/**
+ * A marketplace plugin entry. Codex `source` is a DISCRIMINATED object: local
+ * entries use `{ source: 'local', path }`; git-backed entries use
+ * `{ source: 'url' | 'git-subdir', url, path?, ref? }`. We ship local entries.
+ */
 export const MarketplacePluginEntrySchema = z.object({
   name: z.string().min(1),
-  source: z.object({ path: z.string().min(1) }),
+  source: z.object({ source: z.string().min(1), path: z.string().min(1) }),
   description: z.string().min(1),
 });
 
 export const MarketplaceSchema = z.object({
   name: z.string().min(1),
-  description: z.string().min(1),
-  owner: z.object({
-    name: z.string().min(1),
-    url: z.string().url(),
-  }),
+  // Codex marketplace metadata lives under `interface` (displayName, etc.),
+  // not a Claude-style top-level `owner` object.
+  interface: z.object({ displayName: z.string().min(1) }),
   plugins: z.array(MarketplacePluginEntrySchema).min(1),
 });
 
@@ -34,8 +36,12 @@ export const PluginManifestSchema = z.object({
   name: z.string().min(1),
   version: z.string().regex(SEMVER_RE, 'version must be a semver string (e.g. 1.2.3)'),
   description: z.string().min(1),
-  // Codex uses a plain string author (unlike Claude Code's { name, url } object).
-  author: z.string().min(1),
+  // Codex `author` is an object { name, email?, url? } (same shape as Claude Code).
+  author: z.object({
+    name: z.string().min(1),
+    email: z.string().email().optional(),
+    url: z.string().url().optional(),
+  }),
   license: z.string().min(1),
   homepage: z.string().url().optional(),
   repository: z.string().optional(),
@@ -62,7 +68,9 @@ export const McpServerSchema = z.object({
 });
 
 export const McpConfigSchema = z.object({
-  mcpServers: z.object({
+  // Codex plugin .mcp.json wraps servers under snake_case `mcp_servers`
+  // (or a direct server map); it is NOT Claude Code's camelCase `mcpServers`.
+  mcp_servers: z.object({
     lantern: McpServerSchema,
   }),
 });

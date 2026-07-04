@@ -29,7 +29,7 @@ describe('plugin manifests', () => {
       it(`GIVEN the manifest WHEN author and description checked THEN both are non-empty`, () => {
         const parsed = PluginManifestSchema.parse(loadPluginManifest(plugin));
         expect(parsed.description.length).toBeGreaterThan(0);
-        expect(parsed.author.length).toBeGreaterThan(0);
+        expect(parsed.author.name.length).toBeGreaterThan(0);
       });
 
       it(`GIVEN the manifest WHEN Codex component paths checked THEN skills and mcpServers point at bundle files`, () => {
@@ -40,12 +40,14 @@ describe('plugin manifests', () => {
     });
   }
 
+  const objAuthor = { name: 'X', url: 'https://x.com' };
+
   it('GIVEN a manifest with a bad version WHEN parsed THEN the schema rejects it', () => {
     const result = PluginManifestSchema.safeParse({
       name: 'test',
       description: 'test',
       version: 'not-semver',
-      author: 'X',
+      author: objAuthor,
       license: 'MIT',
     });
     expect(result.success).toBe(false);
@@ -56,7 +58,7 @@ describe('plugin manifests', () => {
       name: 'test',
       description: 'test',
       version: '1.0.0',
-      author: 'X',
+      author: objAuthor,
     });
     expect(result.success).toBe(false);
   });
@@ -66,18 +68,18 @@ describe('plugin manifests', () => {
       name: 'test',
       description: '',
       version: '1.0.0',
-      author: 'X',
+      author: objAuthor,
       license: 'MIT',
     });
     expect(result.success).toBe(false);
   });
 
-  it('GIVEN a manifest with an object author (Claude shape) WHEN parsed THEN the schema rejects it', () => {
+  it('GIVEN a manifest with a bare-string author (Claude→Codex mistake) WHEN parsed THEN the schema rejects it', () => {
     const result = PluginManifestSchema.safeParse({
       name: 'test',
       description: 'test',
       version: '1.0.0',
-      author: { name: 'X', url: 'https://x.com' },
+      author: 'X',
       license: 'MIT',
     });
     expect(result.success).toBe(false);
