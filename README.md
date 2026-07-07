@@ -23,6 +23,28 @@ quality, and website AI-readiness. Pick a brand and ask.
 > If the commands above behave differently, check `codex --help` /
 > `codex plugin --help`.
 
+## Install in the Codex app or IDE
+
+Codex plugins are per-user and shared across the CLI, the desktop app, and the
+IDE extension, so you register a marketplace once and it is available everywhere.
+
+1. **Register this marketplace (CLI, once):**
+   ```bash
+   codex plugin marketplace add lanterninc/codex-plugins
+   ```
+   Added marketplaces are shared with the app and IDE.
+2. **Desktop app:** open the **Plugins** panel, find **lantern** (browse or
+   search), open its details, and select **Add to Codex** / the ➕ button.
+3. **IDE extension (VS Code):** open the Codex Plugins view from the sidebar and
+   enable **lantern**, or run the register command above in the extension's
+   integrated terminal.
+4. **Authenticate:** run `codex mcp login lantern` in a terminal once; the app
+   and IDE reuse the stored credentials.
+
+> Doc-derived, not verified against a live Codex app/IDE. Exact panel labels, and
+> whether an added marketplace surfaces in the app's Plugins list, may differ by
+> version — the CLI flow above is the reliable path.
+
 ## What you can ask
 
 Pick a brand first ("list my Lantern brands"), then ask:
