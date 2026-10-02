@@ -58,15 +58,15 @@ describe('skill SKILL.md files', () => {
     });
   }
 
-  // Brand-scoped skills must mention get_visibility_brands (the bootstrap tool).
+  // Brand-scoped skills must mention account-manager.get_brands (the bootstrap tool).
   const brandScopedSkills = ['ai-visibility', 'citations', 'product-quality', 'website-analysis', 'competitors', 'brands'];
 
   for (const plugin of PLUGINS) {
     for (const skill of brandScopedSkills) {
-      it(`GIVEN ${plugin}/${skill}/SKILL.md WHEN body examined THEN it mentions get_visibility_brands`, () => {
+      it(`GIVEN ${plugin}/${skill}/SKILL.md WHEN body examined THEN it mentions account-manager.get_brands`, () => {
         const skillPath = join(repoRoot(), 'plugins', plugin, 'skills', skill, 'SKILL.md');
         const { body } = loadFrontmatter(skillPath);
-        expect(body).toContain('get_visibility_brands');
+        expect(body).toContain('account-manager.get_brands');
       });
     }
   }

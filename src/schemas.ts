@@ -32,6 +32,30 @@ export type Marketplace = z.infer<typeof MarketplaceSchema>;
 /** Loose semver — three numeric segments, optional pre-release/build. */
 const SEMVER_RE = /^\d+\.\d+\.\d+(-[\w.]+)?(\+[\w.]+)?$/;
 
+export const PluginInterfaceSchema = z
+  .object({
+    displayName: z.string().min(1),
+    shortDescription: z.string().min(1),
+    longDescription: z.string().min(1),
+    developerName: z.string().min(1),
+    category: z.string().min(1),
+    capabilities: z.array(z.string().min(1)).min(1),
+    defaultPrompt: z.array(z.string().min(1)).min(1).optional(),
+    default_prompt: z.array(z.string().min(1)).min(1).optional(),
+    websiteURL: z.string().url().optional(),
+    privacyPolicyURL: z.string().url().optional(),
+    termsOfServiceURL: z.string().url().optional(),
+    brandColor: z
+      .string()
+      .regex(/^#[0-9A-Fa-f]{6}$/, 'brandColor must be #RRGGBB')
+      .optional(),
+  })
+  .refine((value) => value.defaultPrompt !== undefined || value.default_prompt !== undefined, {
+    message: 'defaultPrompt or default_prompt is required',
+  });
+
+export type PluginInterface = z.infer<typeof PluginInterfaceSchema>;
+
 export const PluginManifestSchema = z.object({
   name: z.string().min(1),
   version: z.string().regex(SEMVER_RE, 'version must be a semver string (e.g. 1.2.3)'),
@@ -49,6 +73,7 @@ export const PluginManifestSchema = z.object({
   // Codex component path keys — `./`-relative, kept inside the plugin root.
   skills: z.string().min(1).optional(),
   mcpServers: z.string().min(1).optional(),
+  interface: PluginInterfaceSchema,
 });
 
 export type PluginManifest = z.infer<typeof PluginManifestSchema>;
@@ -68,9 +93,9 @@ export const McpServerSchema = z.object({
 });
 
 export const McpConfigSchema = z.object({
-  // Codex plugin .mcp.json wraps servers under snake_case `mcp_servers`
-  // (or a direct server map); it is NOT Claude Code's camelCase `mcpServers`.
-  mcp_servers: z.object({
+  // Codex plugin companion .mcp.json files use the same `mcpServers` key as
+  // plugin.json. User config.toml still uses TOML `[mcp_servers.<name>]`.
+  mcpServers: z.object({
     lantern: McpServerSchema,
   }),
 });

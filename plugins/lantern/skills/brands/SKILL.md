@@ -5,10 +5,10 @@ description: Use when the user wants to list the Lantern brands they can access 
 
 # Lantern brands
 
-You have the Lantern MCP tools (`findings.*`). This skill resolves *which* brand the rest of the session works with.
+You have the Lantern MCP tools (`findings.*`, plus `account-manager.get_brands` for brand lookup). This skill resolves *which* brand the rest of the session works with.
 
 ## What to do
-Call `findings.get_visibility_brands` (no arguments). It returns the brands the current token can reach as `{ id, name }`. Present them by name (note the UUID is only used internally). Ask which brand the user wants to work with, and remember that `accountBrandId` — thread it into every later Lantern request this session.
+Call `account-manager.get_brands` (no arguments). It returns the brands the current token can reach as `{ id, name, slug, domains }`. Present them by name, with their websites (note the UUID is only used internally). Ask which brand the user wants to work with, and remember that `accountBrandId` — thread it into every later Lantern request this session.
 
 If only one brand comes back, use it and say so. If the user already named a brand, match it and skip the question.
 

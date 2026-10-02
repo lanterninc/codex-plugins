@@ -8,8 +8,8 @@ Run against production (`agent.lantern.is`) in Codex CLI.
 2. **OAuth:** `codex mcp login lantern` → browser opens to the Lantern consent
    page → log in → pick brand(s) → approve. `codex mcp list` (or `/mcp` in the TUI)
    shows the `lantern` server connected with a tool count of 25.
-3. **Bootstrap:** ask "list my Lantern brands" → `findings.get_visibility_brands`
-   returns real `{id,name}` with **no** brand argument.
+3. **Bootstrap:** ask "list my Lantern brands" → `account-manager.get_brands`
+   returns real `{id,name,slug,domains}` with **no** brand argument.
 4. **Read per area (pick one brand):**
    - "AI-visibility snapshot for <brand>" → real scores/overview.
    - "how AI-ready is <domain>" → readiness summary (note: domain scores may be null).

@@ -37,10 +37,30 @@ describe('plugin manifests', () => {
         expect(parsed.skills).toBe('./skills/');
         expect(parsed.mcpServers).toBe('./.mcp.json');
       });
+
+      it(`GIVEN the manifest WHEN interface metadata checked THEN required Codex UI fields are present`, () => {
+        const parsed = PluginManifestSchema.parse(loadPluginManifest(plugin));
+        expect(parsed.interface.displayName.length).toBeGreaterThan(0);
+        expect(parsed.interface.shortDescription.length).toBeGreaterThan(0);
+        expect(parsed.interface.longDescription.length).toBeGreaterThan(0);
+        expect(parsed.interface.developerName).toBe('Lantern');
+        expect(parsed.interface.category.length).toBeGreaterThan(0);
+        expect(parsed.interface.capabilities.length).toBeGreaterThan(0);
+        expect(parsed.interface.defaultPrompt?.length ?? parsed.interface.default_prompt?.length ?? 0).toBeGreaterThan(0);
+      });
     });
   }
 
   const objAuthor = { name: 'X', url: 'https://x.com' };
+  const objInterface = {
+    displayName: 'Test',
+    shortDescription: 'Short',
+    longDescription: 'Long',
+    developerName: 'Lantern',
+    category: 'Productivity',
+    capabilities: ['Read'],
+    defaultPrompt: ['Start'],
+  };
 
   it('GIVEN a manifest with a bad version WHEN parsed THEN the schema rejects it', () => {
     const result = PluginManifestSchema.safeParse({
@@ -49,6 +69,7 @@ describe('plugin manifests', () => {
       version: 'not-semver',
       author: objAuthor,
       license: 'MIT',
+      interface: objInterface,
     });
     expect(result.success).toBe(false);
   });
@@ -59,6 +80,7 @@ describe('plugin manifests', () => {
       description: 'test',
       version: '1.0.0',
       author: objAuthor,
+      interface: objInterface,
     });
     expect(result.success).toBe(false);
   });
@@ -70,6 +92,7 @@ describe('plugin manifests', () => {
       version: '1.0.0',
       author: objAuthor,
       license: 'MIT',
+      interface: objInterface,
     });
     expect(result.success).toBe(false);
   });
@@ -80,6 +103,18 @@ describe('plugin manifests', () => {
       description: 'test',
       version: '1.0.0',
       author: 'X',
+      license: 'MIT',
+      interface: objInterface,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('GIVEN a manifest missing interface WHEN parsed THEN the schema rejects it', () => {
+    const result = PluginManifestSchema.safeParse({
+      name: 'test',
+      description: 'test',
+      version: '1.0.0',
+      author: objAuthor,
       license: 'MIT',
     });
     expect(result.success).toBe(false);

@@ -9,7 +9,8 @@ import { parse as parseToml } from 'smol-toml';
 // ---------------------------------------------------------------------------
 
 /**
- * The canonical set of tool names exposed by the Lantern MCP server.
+ * The canonical set of tool names exposed by the Lantern MCP server, as
+ * `<namespace>.<tool>` (namespaces: `findings`, `account-manager`).
  *
  * IMPORTANT: This list MUST be regenerated from the live MCP `tools/list`
  * response at `agent.lantern.is/agent/mcp` whenever tools are added or
@@ -18,15 +19,7 @@ import { parse as parseToml } from 'smol-toml';
  * substitute for pulling the live server list.
  */
 export const KNOWN_TOOLS: ReadonlyArray<string> = [
-  'findings.get_brand_domains',
-  'findings.get_visibility_brands',
-  'findings.get_brand_scores',
-  'findings.get_ai_readiness',
-  'findings.get_readiness_summary',
-  'findings.get_domain_analysis',
-  'findings.get_analysis_history',
-  'findings.get_analysis_diff',
-  'findings.check_analysis_status',
+  'account-manager.get_brands',
   'findings.get_action_queue',
   'findings.get_products',
   'findings.get_product_catalog_summary',
@@ -34,10 +27,9 @@ export const KNOWN_TOOLS: ReadonlyArray<string> = [
   'findings.get_brand_citation_telemetry',
   'findings.explain_citation_telemetry',
   'findings.get_brand_competitor_citations',
-  'findings.get_ai_traffic_data',
+  'findings.get_ai_traffic_insights',
   'findings.get_action_impact',
   'findings.get_action_metadata',
-  'findings.get_overview',
   'findings.get_overview_attention',
   'findings.get_portfolio_overview',
   'findings.get_brand_overview',
@@ -77,7 +69,7 @@ export const CUSTOMER_SKILLS: ReadonlyArray<string> = [
 export const FORBIDDEN_TOOL_PATTERNS: ReadonlyArray<RegExp> = [
   /publish_/,
   /edit_website/,
-  /apply_recommendation/,
+  /apply_/,
   /draft_/,
   /ask_lantern/,
 ] as const;
@@ -203,18 +195,22 @@ export function findingsSkillDirs(pluginName: string): string[] {
  * `findings.<suffix>` form before validation.
  */
 const BARE_TOOL_RE =
-  /\b(get|compare|explain|check)_[a-z][a-z0-9_]*\b/g;
+  /(?<![.\w-])(get|compare|explain|check)_[a-z][a-z0-9_]*\b/g;
 
 /**
- * Collect all `findings.<tool_name>` references from a text blob, including
- * bare shorthand forms such as `get_brand_scores` (without the `findings.`
- * prefix).  Returns a deduped array of the full dotted names.
+ * Collect all `<namespace>.<tool_name>` references from a text blob, including
+ * bare shorthand forms such as `get_brand_overview` (without the `findings.`
+ * prefix).  Returns a deduped array of the full dotted names
+ * (e.g. `account-manager.get_brands`).  Recognised namespaces are `findings`
+ * and `account-manager`; a bare token is always normalised to `findings.`, so
+ * tools in any other namespace must be written with their prefix.
  */
 export function collectToolRefs(text: string): string[] {
   const result = new Set<string>();
 
   // 1. Prefixed form — end-anchored word boundary, lowercase only.
-  const prefixedMatches = text.match(/\bfindings\.[a-z][a-z0-9_]*\b/g) ?? [];
+  const prefixedMatches =
+    text.match(/\b(?:findings|account-manager)\.[a-z][a-z0-9_]*\b/g) ?? [];
   for (const m of prefixedMatches) {
     result.add(m);
   }

@@ -46,14 +46,14 @@ describe('FORBIDDEN_TOOL_PATTERNS helper coverage', () => {
   });
 
   it('GIVEN text not containing any forbidden pattern WHEN checked THEN no pattern matches', () => {
-    const clean = 'findings.get_brand_scores findings.get_overview';
+    const clean = 'findings.get_brand_overview findings.get_overview_attention';
     for (const pattern of FORBIDDEN_TOOL_PATTERNS) {
       expect(pattern.test(clean)).toBe(false);
     }
   });
 
-  it('GIVEN text containing apply_recommendation WHEN checked THEN the pattern matches', () => {
-    expect(FORBIDDEN_TOOL_PATTERNS.some((p) => p.test('apply_recommendation_now'))).toBe(true);
+  it('GIVEN text containing apply_fix WHEN checked THEN the pattern matches', () => {
+    expect(FORBIDDEN_TOOL_PATTERNS.some((p) => p.test('apply_fix_now'))).toBe(true);
   });
 
   it('GIVEN text containing draft_ WHEN checked THEN the pattern matches', () => {

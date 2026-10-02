@@ -16,5 +16,23 @@
     "seo"
   ],
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json"
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Lantern",
+    "shortDescription": "Inspect Lantern brand intelligence in Codex",
+    "longDescription": "Use Lantern's Codex plugin to inspect AI visibility, citations, product quality, and website AI-readiness analysis.",
+    "developerName": "Lantern",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Show my Lantern brand visibility",
+      "Review citations for my brand",
+      "Check website AI readiness"
+    ],
+    "brandColor": "#0F6B5F",
+    "websiteURL": "https://lantern.is"
+  }
 }

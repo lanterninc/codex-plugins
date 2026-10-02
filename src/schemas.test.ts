@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   MarketplaceSchema,
+  PluginInterfaceSchema,
   PluginManifestSchema,
   McpConfigSchema,
   SkillFrontmatterSchema,
@@ -98,6 +99,15 @@ describe('PluginManifestSchema', () => {
     version: '1.2.3',
     author: { name: 'Lantern', url: 'https://lantern.is' },
     license: 'MIT',
+    interface: {
+      displayName: 'Lantern',
+      shortDescription: 'Short',
+      longDescription: 'Long',
+      developerName: 'Lantern',
+      category: 'Productivity',
+      capabilities: ['Read'],
+      defaultPrompt: ['Show visibility'],
+    },
   };
 
   it('GIVEN a valid manifest with pre-release WHEN parsed THEN succeeds', () => {
@@ -142,6 +152,55 @@ describe('PluginManifestSchema', () => {
     const result = PluginManifestSchema.safeParse({ ...validManifest, author: 'Lantern' });
     expect(result.success).toBe(false);
   });
+
+  it('GIVEN a manifest missing interface WHEN parsed THEN fails', () => {
+    const manifest: Record<string, unknown> = { ...validManifest };
+    delete manifest['interface'];
+    const result = PluginManifestSchema.safeParse(manifest);
+    expect(result.success).toBe(false);
+  });
+
+  it('GIVEN a manifest interface missing defaultPrompt WHEN parsed THEN fails', () => {
+    const pluginInterface: Record<string, unknown> = { ...validManifest.interface };
+    delete pluginInterface['defaultPrompt'];
+    const result = PluginManifestSchema.safeParse({
+      ...validManifest,
+      interface: pluginInterface,
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('PluginInterfaceSchema', () => {
+  const validInterfaceWithoutPrompt = {
+    displayName: 'Lantern',
+    shortDescription: 'Short',
+    longDescription: 'Long',
+    developerName: 'Lantern',
+    category: 'Productivity',
+    capabilities: ['Read'],
+  };
+
+  const validInterface = {
+    ...validInterfaceWithoutPrompt,
+    defaultPrompt: ['Show visibility'],
+  };
+
+  it('GIVEN a valid plugin interface WHEN parsed directly THEN succeeds', () => {
+    expect(PluginInterfaceSchema.safeParse(validInterface).success).toBe(true);
+  });
+
+  it('GIVEN a plugin interface with snake_case default_prompt WHEN parsed directly THEN succeeds', () => {
+    const result = PluginInterfaceSchema.safeParse({
+      ...validInterfaceWithoutPrompt,
+      default_prompt: ['Show visibility'],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('GIVEN a plugin interface missing both prompt keys WHEN parsed directly THEN fails', () => {
+    expect(PluginInterfaceSchema.safeParse(validInterfaceWithoutPrompt).success).toBe(false);
+  });
 });
 
 describe('McpServerSchema', () => {
@@ -175,14 +234,14 @@ describe('McpServerSchema', () => {
 });
 
 describe('McpConfigSchema', () => {
-  it('GIVEN a config missing mcp_servers WHEN parsed THEN fails', () => {
+  it('GIVEN a config missing mcpServers WHEN parsed THEN fails', () => {
     const result = McpConfigSchema.safeParse({});
     expect(result.success).toBe(false);
   });
 
-  it('GIVEN a config with a valid server under mcp_servers WHEN parsed THEN succeeds', () => {
+  it('GIVEN a config with a valid server under mcpServers WHEN parsed THEN succeeds', () => {
     const result = McpConfigSchema.safeParse({
-      mcp_servers: { lantern: { url: 'https://agent.lantern.is/agent/mcp' } },
+      mcpServers: { lantern: { url: 'https://agent.lantern.is/agent/mcp' } },
     });
     expect(result.success).toBe(true);
   });
