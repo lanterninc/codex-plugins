@@ -25,3 +25,16 @@ jobs:
         run: npm run typecheck
       - name: Test (with coverage)
         run: npm run test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build and validate the ChatGPT portal ZIP
+        run: npm run export:chatgpt -- .
+      - name: Upload ChatGPT portal package
+        uses: actions/upload-artifact@v4
+        with:
+          name: lantern-chatgpt-plugin
+          path: |
+            dist/chatgpt/*.zip
+            dist/chatgpt/*.sha256
+          if-no-files-found: error

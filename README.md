@@ -60,3 +60,16 @@ All tools are strictly read-only — act on recommendations in the Lantern dashb
 
 ### Manual e2e checklist (run before each publish)
 See `docs/e2e-checklist.md`.
+
+## Build the ChatGPT portal package
+
+From a clean checkout of this repository, with Python 3.11 or newer:
+
+```bash
+npm run export:chatgpt -- .
+```
+
+The command writes the plugin ZIP and SHA-256 checksum to `dist/chatgpt/`.
+CI also attaches them as the `lantern-chatgpt-plugin` artifact. See
+[`docs/chatgpt-plugin.md`](docs/chatgpt-plugin.md) for listing metadata,
+source provenance, review cases, and submission preparation.

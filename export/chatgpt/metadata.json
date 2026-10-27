@@ -1,0 +1,79 @@
+{
+  "interface": {
+    "displayName": "Lantern",
+    "shortDescription": "Understand your AI visibility",
+    "longDescription": "Explore your brand's AI visibility, cited sources, competitor comparisons, product appearances in AI shopping answers, AI referral traffic, and latest website readiness findings. Connect your Lantern account, choose a brand you can access, and ask for a focused answer or a combined report. This plugin reads existing findings; it does not start analyses, edit or publish content, or process payments. Available results depend on your Lantern account and completed tracking. Per-product data-quality grades and historical website-analysis comparisons are not available through this connection.",
+    "developerName": "Listenmore Technologies Inc. DBA Lantern",
+    "category": "Data & Analytics",
+    "capabilities": ["Read"],
+    "websiteURL": "https://lantern.is",
+    "supportURL": "https://lantern.is/contact",
+    "privacyPolicyURL": "https://lantern.is/privacy",
+    "termsOfServiceURL": "https://lantern.is/terms",
+    "logo": "./assets/icon.png",
+    "composerIcon": "./assets/icon.png"
+  },
+  "review": {
+    "prompts": [
+      "List my Lantern brands.",
+      "How visible is my brand across AI assistants?",
+      "Which sources cite my brand, and how have they changed over the last 30 days?",
+      "Which of my products appear in AI shopping answers?",
+      "Give me a combined visibility, citations, and competitor report for my brand."
+    ],
+    "test_cases": {
+      "positive": [
+        {
+          "description": "Brand discovery and selection. Use a connected reviewer account with at least one accessible brand. No prior brand selection is needed.",
+          "prompt": "List my Lantern brands.",
+          "tools_triggered": "account-manager.get_brands",
+          "expected_behavior": "Call the brand lookup without arguments. Show only returned brand names and websites. Automatically select a sole brand; if several are returned, ask which one to use. Do not invent brands or expose their internal IDs unless requested. If none are returned, explain that there are no accessible brands."
+        },
+        {
+          "description": "Combined visibility and competitor report. First select a reviewer brand returned by brand discovery that has completed tracking and competitor data.",
+          "prompt": "Give me a visibility overview for this brand and compare it with its competitors.",
+          "tools_triggered": "findings.get_brand_overview, findings.get_overview_attention, findings.compare_brands; account-manager.get_brands if brand context is missing",
+          "expected_behavior": "Use the selected accountBrandId on all brand requests. Present a combined narrative grounded in returned visibility figures and named competitors. Treat null metrics as unavailable, use the reported time window, and do not invent rankings, competitors, or causal explanations."
+        },
+        {
+          "description": "Citation trends by AI assistant. Use a selected reviewer brand with completed tracking. Coverage must distinguish an assistant with zero citations from one that did not answer.",
+          "prompt": "Which sources cited this brand over the last 30 days, and how did citations change for each AI assistant?",
+          "tools_triggered": "findings.get_citations, findings.get_citation_trend_by_channel; account-manager.get_brands if brand context is missing",
+          "expected_behavior": "Pass the selected accountBrandId and days=30. Name cited sources from the results, report the actual window including any clamping, and keep ChatGPT and ChatGPT (API) separate. Explain missing data without treating it as zero. Describe changes without claiming the tools establish their cause."
+        },
+        {
+          "description": "Product discovery followed by detail. Use a selected reviewer brand with at least one product in its completed tracking results.",
+          "prompt": "Which of this brand's products appear in AI shopping answers? Show details for one of them.",
+          "tools_triggered": "findings.get_product_catalog_summary, findings.get_products, findings.get_product_detail; account-manager.get_brands if brand context is missing",
+          "expected_behavior": "Use the selected accountBrandId and a product_id or product_key actually returned by the product list for the detail call. Summarize recommendations and link destinations from returned data. Do not invent product grades; distinguish an unmeasured period from a measured zero."
+        },
+        {
+          "description": "Latest website readiness and pending recommendations. Use a selected reviewer brand with a completed site analysis and at least one queued action.",
+          "prompt": "Show this brand's latest website readiness findings and explain one recommended fix waiting for review.",
+          "tools_triggered": "findings.get_brand_overview, findings.get_action_queue, findings.get_action_impact, findings.get_action_metadata; account-manager.get_brands if brand context is missing",
+          "expected_behavior": "Use the selected accountBrandId and an action identifier returned by the queue. Explain the current status and the recommendation by title and meaning, with estimated impact clearly labeled. Read existing findings only; do not start an analysis or apply any change."
+        }
+      ],
+      "negative": [
+        {
+          "description": "Read-only boundary. Explain that applying and publishing changes happens in the Lantern dashboard. Do not invoke a mutation tool or claim anything was changed.",
+          "prompt": "Apply all of this brand's recommended website fixes and publish them now."
+        },
+        {
+          "description": "Unsupported product-quality grades. Explain that per-product scores and letter grades are not available through this connection. Offer to inspect product appearances in AI answers instead. Do not fabricate grades or invoke an unrelated tool to approximate them.",
+          "prompt": "Give every product in this brand's catalog a Lantern data-quality score and letter grade."
+        },
+        {
+          "description": "Unsupported analysis history and new runs. Explain that the connection can read the latest analysis but cannot start a run or retrieve historical run-to-run differences. Do not trigger an analysis, invent historical snapshots, or present current data as a historical comparison.",
+          "prompt": "Run a new website analysis and compare every score with the analysis from six months ago."
+        }
+      ]
+    },
+    "commerce": false,
+    "commerce_description": "The plugin does not support purchases or process payments. Payments for Lantern platform services are handled separately on the Lantern platform."
+  },
+  "publication": {
+    "countries": ["US"],
+    "release_notes": "Initial ChatGPT package based on the public lanterninc/codex-plugins repository, with its six customer skills, a portable version of the Lantern analyst workflow, and the production OAuth MCP connection."
+  }
+}
