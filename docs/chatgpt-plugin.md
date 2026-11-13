@@ -10,7 +10,7 @@ git clone https://github.com/lanterninc/codex-plugins.git /tmp/lantern-public
 npm run export:chatgpt -- /tmp/lantern-public
 ```
 
-Requires Python 3.11 or newer. The build uses only the Python standard library.
+Requires Python 3.11 or newer, Node.js, and `npm ci`. The builder also runs the MCP contract validator.
 It produces `dist/chatgpt/lantern-chatgpt-<version>.zip` and its SHA-256 file.
 `--output /path/to/output` changes the destination. Every ZIP contains one
 `lantern/` directory, with no marketplace, repository harness, account bindings,
@@ -19,16 +19,13 @@ inventory, integrity, and file contents before copying it to the destination.
 Ignored local files are excluded even when they sit inside a skill directory.
 CI retains the ZIP and checksum in the `lantern-chatgpt-plugin` artifact. In the
 public repository, run `npm run export:chatgpt -- .` to package the checked-out
-commit; its CI does the same. The source repository's integration CI uses a
-pinned public commit, which should be updated deliberately for newer releases.
+commit; its CI does the same. The source repository's integration CI validates the generated public tree and
+builds a ZIP from that exact tree, so packaging inputs cannot silently lag the source.
 
-The artifact prepared on October 27, 2026 uses public commit
-`c50ff77896af09e84b82e59f504ed3bba9b32b25`. Its six source skills are byte-identical;
-`SOURCE.json` records their hashes and the exact source commit. The seventh
-skill adapts the public repository's `lantern-analyst` Codex persona into a
-portable skill, preserving its read-only instructions. Its default prompts and
-brand color are retained from the source manifest. The public source checkout
-remains unchanged.
+Version 0.1.1 corrects the canonical tool namespace and per-tool inputs.
+`SOURCE.json` records the exact clean Git commit and packaged skill hashes.
+Six customer skills and the read-only analyst workflow are included. The
+existing identity, starter prompts, icon and OAuth read scopes are preserved.
 
 ## Listing and configuration
 
@@ -58,19 +55,33 @@ advertise the production resource, registration endpoint, PKCE, and the
 `read:findings` and `read:rankings` scopes. Only those read scopes are requested.
 Endpoints are discovered rather than duplicated as overrides in the package.
 
-Discovery was checked without signing in. OAuth completion, the tools returned
-for the resulting read-scoped token, and their `readOnlyHint`, `openWorldHint`,
-and `destructiveHint` annotations still need verification with a reviewer/test
-account. This package does not deploy or change the Lantern MCP server.
+## Contract validation and live review
 
-## Review cases and demo
+The November 13 input snapshot was read from the portal's last available tool
+definitions and cross-checked with https://lantern.is/docs/mcp. The rescan
+reported that authorization was missing or no longer usable. Consequently,
+this snapshot is **not proof of a fresh authenticated scan or live calls**.
 
-The manifest contains five positive and three negative cases with prompts,
-setup, tool expectations, and pass conditions. They are **Not run** against the
-packaged plugin. Source tool references use `findings.*`; some hosts expose the
-same operations under a `findings-interpreter` namespace with normalized names.
-Check the actual discovered names and schemas when running the cases, and
-update the review expectations if the portal requires the exact exposed names.
+`npm run check:mcp-contracts` validates all authored tool names and 19 synthetic
+example calls with Ajv against the saved input schemas. The export runs this
+gate too. Before every submission, capture fresh authenticated `tools/list`
+JSON (no token or credentials), then validate and package against that file:
+
+```bash
+npm run check:mcp-contracts -- --snapshot /path/to/tools-list.json
+npm run export:chatgpt -- . --tool-snapshot /path/to/tools-list.json
+```
+
+Regressions cover the former `accountBrandId`/`brand_id` mismatch, a removed
+operation, and mutually exclusive product identifiers. The saved schema file
+is a local regression baseline; it does not detect remote changes until refreshed.
+
+The five positive cases now bootstrap their own brand selection in a fresh
+conversation. Each populated-data case specifies its fixture prerequisites.
+Missing fixture data means **Blocked**, not a passing populated-data test.
+The three negative cases expect no tool call for unsupported actions. Current
+case status: **Not run on ChatGPT web or mobile**. Schema validation and a
+simulated instruction walkthrough must never be reported as end-to-end passes.
 
 Positive coverage: accessible brand selection; a combined visibility and
 competitor report; citation trends by AI assistant; a product summary followed
@@ -111,26 +122,28 @@ Computer use can help operate this walkthrough while the owner records it.
 Screenshots are not a demo video. A real recording still needs to be made and
 verified; this guide is not recorded evidence.
 
-Add the verified recording URL to `review.demo_recording_url` in
-`export/chatgpt/metadata.json`, then rebuild the ZIP. Record each case's actual
+Keep reviewer credentials in the secure portal fields. A demo URL already saved
+in the portal is preserved when `review.demo_recording_url` is omitted from the
+replacement ZIP; only include it in source if it is intentionally public. Record each case's actual
 result as Passed, Failed, Blocked, or Not run in private preparation notes; do
 not add unsupported result fields to the manifest.
 
-## Portal handoff
+## Portal submission procedure
 
-The ZIP is structurally validated and prepared for draft upload. It is **not yet
-ready for public review**: the demo, dedicated reviewer access, live cases and
-tool annotations, and portal verification remain incomplete. Nothing has been
-uploaded, submitted, or published by the packaging command.
+Upload the full replacement ZIP to the existing Lantern plugin, preserving
+its identity and saved reviewer/demo fields. Inspect the imported five positive
+and three negative cases. Reconnect the existing read-scoped MCP account and
+complete a fresh scan after any server schema change.
 
-Once review materials are prepared, upload the ZIP at
-[OpenAI Plugins](https://platform.openai.com/plugins) under the intended verified
-publisher. Inspect imported listing and US availability; complete MCP domain
-verification, OAuth connection and required scans; enter reviewer access in
-the secure form; and run the cases against that exact saved version. The owner
-must complete required attestations. Draft upload, submission for review, and
-publication are separate steps.
+Run all eight exact prompts on ChatGPT web, iOS and Android using the same
+review account and fixture. For each run retain platform/version, package Git
+commit, actual tool names and input/output evidence, date window, and result
+(Passed, Failed, Blocked or Not run). Repeat the populated-data cases to check
+consistency; recheck the pending-action fixture immediately before review.
+Verify the demo and reviewer login against this version. Do not submit while
+any required run is failed, blocked or untested. The owner completes legal
+attestations. Submission and later publication are separate actions.
 
-References checked October 27, 2026:
-[Package your plugin](https://developers.openai.com/plugins/build/plugins) and
-[Upload and submit your plugin](https://developers.openai.com/plugins/deploy/submission).
+References: [Lantern MCP documentation](https://lantern.is/docs/mcp),
+[App review](https://developers.openai.com/plugins/deploy/app-review), and
+[Submission](https://developers.openai.com/plugins/deploy/submission).

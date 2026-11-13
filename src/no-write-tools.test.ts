@@ -42,11 +42,11 @@ describe('no write tools', () => {
 
 describe('FORBIDDEN_TOOL_PATTERNS helper coverage', () => {
   it('GIVEN text containing publish_ WHEN checked THEN the pattern matches', () => {
-    expect(FORBIDDEN_TOOL_PATTERNS[0]?.test('findings.publish_results')).toBe(true);
+    expect(FORBIDDEN_TOOL_PATTERNS[0]?.test('findings-interpreter.publish_results')).toBe(true);
   });
 
   it('GIVEN text not containing any forbidden pattern WHEN checked THEN no pattern matches', () => {
-    const clean = 'findings.get_brand_overview findings.get_overview_attention';
+    const clean = 'findings-interpreter.get_brand_overview findings-interpreter.get_overview_attention';
     for (const pattern of FORBIDDEN_TOOL_PATTERNS) {
       expect(pattern.test(clean)).toBe(false);
     }

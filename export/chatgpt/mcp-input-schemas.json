@@ -1,0 +1,467 @@
+{
+  "observed_at": "2026-11-13",
+  "source": "OpenAI submission portal tool definition drawers for production https://agent.lantern.is/agent/mcp; input schemas only, descriptions omitted. Last available definitions; scan reconnect required. This is not evidence of a successful live tools/list or tool execution.",
+  "tools": [
+    {
+      "name": "account-manager.get_brands",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "accountBrandId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "findings-interpreter.compare_brands",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "top_competitors": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "brand_id"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_action_impact",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "actionId": {
+            "type": "string"
+          },
+          "accountBrandId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "actionId"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_action_metadata",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "actionId": {
+            "type": "string"
+          },
+          "accountBrandId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "actionId"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_action_queue",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "accountBrandId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "findings-interpreter.get_ai_traffic_insights",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "accountBrandId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "findings-interpreter.get_brand_overview",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "detail": {
+            "type": "string",
+            "enum": [
+              "summary",
+              "full",
+              "with_history",
+              "with_per_query"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "brand_id"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_brand_overview_trend",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "prompt_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "brand_id"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_brand_overview_trend_by_channel",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "prompt_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "brand_id"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_citation_trend",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "prompt_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "brand_id"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_citation_trend_by_channel",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "prompt_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "brand_id"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_citations",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          },
+          "search": {
+            "type": "string"
+          },
+          "page_class": {
+            "type": "string",
+            "enum": [
+              "own",
+              "competitor",
+              "third_party",
+              "social",
+              "article"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "brand_id"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_citations_by_channel",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "search": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "openai",
+              "anthropic",
+              "google",
+              "deepseek",
+              "chatgpt",
+              "perplexity",
+              "google_ai_mode",
+              "google_ai_overview",
+              "copilot",
+              "grok"
+            ]
+          },
+          "offset": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "brand_id"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_mockup",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recommendation_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "brand_id",
+          "recommendation_id"
+        ]
+      }
+    },
+    {
+      "name": "findings-interpreter.get_overview_attention",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "number"
+          },
+          "accountBrandId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "findings-interpreter.get_portfolio_overview",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "accountBrandId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "findings-interpreter.get_product_catalog_summary",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "findings-interpreter.get_product_detail",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "product_key": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "findings-interpreter.get_products",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brand_id": {
+            "type": "string"
+          },
+          "days": {
+            "type": "number"
+          },
+          "filter": {
+            "type": "string",
+            "enum": [
+              "all",
+              "recommended",
+              "not_recommended",
+              "not_matched"
+            ]
+          },
+          "q": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}
