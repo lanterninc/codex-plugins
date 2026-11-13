@@ -56,7 +56,7 @@ describe('tool integrity', () => {
     const refs = collectToolRefs(blobWithTypo);
     const knownSet = new Set(KNOWN_TOOLS);
     const invented = refs.filter((r) => !knownSet.has(r));
-    expect(invented).toContain('findings.get_brand_scoers');
+    expect(invented).toContain('findings-interpreter.get_brand_scoers');
   });
 
   it('GIVEN KNOWN_TOOLS WHEN all artifacts scanned THEN every entry appears at least once (no dead/fictional tools)', () => {
@@ -73,10 +73,10 @@ describe('tool integrity', () => {
 describe('collectToolRefs helper', () => {
   it('GIVEN text with tool references WHEN collected THEN returns deduped list', () => {
     const text =
-      'call `account-manager.get_brands`, then `findings.get_brand_overview` and again `account-manager.get_brands`';
+      'call `account-manager.get_brands`, then `findings-interpreter.get_brand_overview` and again `account-manager.get_brands`';
     const refs = collectToolRefs(text);
     expect(refs).toContain('account-manager.get_brands');
-    expect(refs).toContain('findings.get_brand_overview');
+    expect(refs).toContain('findings-interpreter.get_brand_overview');
     const count = refs.filter((r) => r === 'account-manager.get_brands').length;
     expect(count).toBe(1);
   });
@@ -89,39 +89,39 @@ describe('collectToolRefs helper', () => {
     expect(collectToolRefs('')).toEqual([]);
   });
 
-  it('GIVEN text where findings. appears at a word boundary WHEN collected THEN matches correctly', () => {
-    const text = 'use findings.get_overview_attention but not xfindings.get_overview_attention';
+  it('GIVEN text where findings-interpreter. appears at a word boundary WHEN collected THEN matches correctly', () => {
+    const text = 'use findings-interpreter.get_overview_attention but not xfindings-interpreter.get_overview_attention';
     const refs = collectToolRefs(text);
-    expect(refs).toContain('findings.get_overview_attention');
-    const xRefs = refs.filter((r) => r === 'findings.get_overview_attention');
+    expect(refs).toContain('findings-interpreter.get_overview_attention');
+    const xRefs = refs.filter((r) => r === 'findings-interpreter.get_overview_attention');
     expect(xRefs.length).toBe(1);
   });
 
-  it('GIVEN text with findings.getOverview (camelCase) WHEN collected THEN it is NOT matched', () => {
-    const refs = collectToolRefs('use findings.getOverview here');
-    expect(refs).not.toContain('findings.getOverview');
-    expect(refs).not.toContain('findings.get');
+  it('GIVEN text with findings-interpreter.getOverview (camelCase) WHEN collected THEN it is NOT matched', () => {
+    const refs = collectToolRefs('use findings-interpreter.getOverview here');
+    expect(refs).not.toContain('findings-interpreter.getOverview');
+    expect(refs).not.toContain('findings-interpreter.get');
   });
 
-  it('GIVEN text with findings.get_overview_attention2 WHEN collected THEN it is captured as-is (not silently collapsed)', () => {
-    const refs = collectToolRefs('call findings.get_overview_attention2 here');
-    expect(refs).toContain('findings.get_overview_attention2');
-    expect(refs).not.toContain('findings.get_overview_attention');
+  it('GIVEN text with findings-interpreter.get_overview_attention2 WHEN collected THEN it is captured as-is (not silently collapsed)', () => {
+    const refs = collectToolRefs('call findings-interpreter.get_overview_attention2 here');
+    expect(refs).toContain('findings-interpreter.get_overview_attention2');
+    expect(refs).not.toContain('findings-interpreter.get_overview_attention');
   });
 
-  it('GIVEN text with bare get_brand_overview WHEN collected THEN findings.get_brand_overview is returned', () => {
+  it('GIVEN text with bare get_brand_overview WHEN collected THEN findings-interpreter.get_brand_overview is returned', () => {
     const refs = collectToolRefs('Call `get_brand_overview` for the brand.');
-    expect(refs).toContain('findings.get_brand_overview');
+    expect(refs).toContain('findings-interpreter.get_brand_overview');
   });
 
-  it('GIVEN text with bare compare_brands WHEN collected THEN findings.compare_brands is returned', () => {
+  it('GIVEN text with bare compare_brands WHEN collected THEN findings-interpreter.compare_brands is returned', () => {
     const refs = collectToolRefs('Use compare_brands to compare.');
-    expect(refs).toContain('findings.compare_brands');
+    expect(refs).toContain('findings-interpreter.compare_brands');
   });
 
-  it('GIVEN text with bare get_citation_trend WHEN collected THEN findings.get_citation_trend is returned', () => {
+  it('GIVEN text with bare get_citation_trend WHEN collected THEN findings-interpreter.get_citation_trend is returned', () => {
     const refs = collectToolRefs('Use get_citation_trend.');
-    expect(refs).toContain('findings.get_citation_trend');
+    expect(refs).toContain('findings-interpreter.get_citation_trend');
   });
 
   it('GIVEN text with a namespaced account-manager ref WHEN collected THEN only the prefixed form is returned', () => {
@@ -129,10 +129,10 @@ describe('collectToolRefs helper', () => {
     expect(refs).toEqual(['account-manager.get_brands']);
   });
 
-  it('GIVEN text with a bare typo get_brand_scoers WHEN collected THEN it normalises to findings.get_brand_scoers (not a known tool)', () => {
+  it('GIVEN text with a bare typo get_brand_scoers WHEN collected THEN it normalises to findings-interpreter.get_brand_scoers (not a known tool)', () => {
     const refs = collectToolRefs('Call `get_brand_scoers` here.');
-    expect(refs).toContain('findings.get_brand_scoers');
+    expect(refs).toContain('findings-interpreter.get_brand_scoers');
     const knownSet = new Set(KNOWN_TOOLS);
-    expect(knownSet.has('findings.get_brand_scoers')).toBe(false);
+    expect(knownSet.has('findings-interpreter.get_brand_scoers')).toBe(false);
   });
 });

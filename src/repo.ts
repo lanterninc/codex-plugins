@@ -9,36 +9,13 @@ import { parse as parseToml } from 'smol-toml';
 // ---------------------------------------------------------------------------
 
 /**
- * The canonical set of tool names exposed by the Lantern MCP server, as
- * `<namespace>.<tool>` (namespaces: `findings`, `account-manager`).
- *
- * IMPORTANT: This list MUST be regenerated from the live MCP `tools/list`
- * response at `agent.lantern.is/agent/mcp` whenever tools are added or
- * removed. It is an internal-consistency mirror only — it ensures artifacts
- * (skills, agents) never reference non-existent tools, but it is NOT a
- * substitute for pulling the live server list.
+ * Canonical names from the observed MCP input schema snapshot. Refresh the
+ * snapshot from authenticated discovery before submission. This local mirror
+ * catches authored references, but does not establish live availability.
  */
-export const KNOWN_TOOLS: ReadonlyArray<string> = [
-  'account-manager.get_brands',
-  'findings.get_action_queue',
-  'findings.get_products',
-  'findings.get_product_catalog_summary',
-  'findings.get_product_detail',
-  'findings.get_citations',
-  'findings.get_citation_trend',
-  'findings.get_citations_by_channel',
-  'findings.get_citation_trend_by_channel',
-  'findings.get_ai_traffic_insights',
-  'findings.get_action_impact',
-  'findings.get_action_metadata',
-  'findings.get_overview_attention',
-  'findings.get_brand_overview_trend',
-  'findings.get_brand_overview_trend_by_channel',
-  'findings.get_portfolio_overview',
-  'findings.get_brand_overview',
-  'findings.compare_brands',
-  'findings.get_mockup',
-] as const;
+export const KNOWN_TOOLS: ReadonlyArray<string> = (
+  readJson('export/chatgpt/mcp-input-schemas.json') as { tools: Array<{ name: string }> }
+).tools.map((tool) => tool.name);
 
 /**
  * The set of plugins this repo ships, derived from marketplace.json so the
@@ -166,7 +143,7 @@ export function loadAgentToml(absPath: string): { data: Record<string, unknown>;
 
 /**
  * The default tool surface. Skills that do not declare a `surface:` in their
- * frontmatter belong to this read-only `findings.*` surface, which the
+ * frontmatter belong to this read-only `findings-interpreter.*` surface, which the
  * read-only scans (no-write-tools, tool-integrity, skills) validate against
  * KNOWN_TOOLS. A skill that declares a DIFFERENT surface is a separate tool
  * family validated by its own gate and skipped by these scans.
@@ -192,20 +169,20 @@ export function findingsSkillDirs(pluginName: string): string[] {
 
 /**
  * Bare-suffix patterns that identify candidate tool references even when the
- * `findings.` namespace prefix is omitted.  Any token starting with one of
+ * `findings-interpreter.` namespace prefix is omitted.  Any token starting with one of
  * these verb prefixes followed by underscore-separated lowercase/digit
  * segments is treated as a bare tool reference and normalised to the full
- * `findings.<suffix>` form before validation.
+ * `findings-interpreter.<suffix>` form before validation.
  */
 const BARE_TOOL_RE =
   /(?<![.\w-])(get|compare|explain|check)_[a-z][a-z0-9_]*\b/g;
 
 /**
  * Collect all `<namespace>.<tool_name>` references from a text blob, including
- * bare shorthand forms such as `get_brand_overview` (without the `findings.`
+ * bare shorthand forms such as `get_brand_overview` (without the `findings-interpreter.`
  * prefix).  Returns a deduped array of the full dotted names
- * (e.g. `account-manager.get_brands`).  Recognised namespaces are `findings`
- * and `account-manager`; a bare token is always normalised to `findings.`, so
+ * (e.g. `account-manager.get_brands`).  Recognised namespaces include `findings-interpreter`, legacy `findings`
+ * and `account-manager`; a bare token is always normalised to `findings-interpreter.`, so
  * tools in any other namespace must be written with their prefix.
  */
 export function collectToolRefs(text: string): string[] {
@@ -213,7 +190,7 @@ export function collectToolRefs(text: string): string[] {
 
   // 1. Prefixed form — end-anchored word boundary, lowercase only.
   const prefixedMatches =
-    text.match(/\b(?:findings|account-manager)\.[a-z][a-z0-9_]*\b/g) ?? [];
+    text.match(/\b(?:findings-interpreter|findings|account-manager)\.[a-z][a-z0-9_]*\b/g) ?? [];
   for (const m of prefixedMatches) {
     result.add(m);
   }
@@ -223,7 +200,7 @@ export function collectToolRefs(text: string): string[] {
   let bareMatch: RegExpExecArray | null;
   while ((bareMatch = BARE_TOOL_RE.exec(text)) !== null) {
     const token = bareMatch[0];
-    result.add(`findings.${token}`);
+    result.add(`findings-interpreter.${token}`);
   }
 
   return [...result];

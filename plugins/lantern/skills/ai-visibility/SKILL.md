@@ -5,18 +5,17 @@ description: Use when the user asks about a brand's AI visibility, how often LLM
 
 # Lantern AI visibility
 
-You have Lantern MCP tools (prefixed `lantern` / `findings.*`) for AI-visibility data.
+You have Lantern MCP tools (prefixed `lantern` / `findings-interpreter.*`) for AI-visibility data.
 
 ## Brand bootstrap (do this first)
-If you don't already have the user's `accountBrandId` for this session, call `account-manager.get_brands` (no arguments) to list their brands as `{ id, name, slug, domains }`, show the names, and ask which one — or match the name they gave. Pass the chosen `accountBrandId` to every later call.
+Call `account-manager.get_brands` with `{}` unless a brand has already been resolved in this conversation. Match the user's name or domain to the returned brands; use the sole brand automatically, or ask the user to choose if ambiguous. If no brands are returned, explain the access limitation and stop. Remember the returned `id` internally as the selected brand ID; do not expose UUIDs unless requested. Use each tool's exact argument name below. Never send both `brand_id` and `accountBrandId`, and do not rely on a connection's implicit active brand.
 
 ## Which tool
-- Overall snapshot / "how visible are we": `findings.get_brand_overview` (brand; latest scores, top recommendations and analysis status).
-- "What needs attention", or the headline figures the Overview shows: `findings.get_overview_attention` (brand; optional `days` 7, 30 or 90, default 30). Besides the attention items and how fresh the results are, it returns the three Overview figures for the window: the visibility score (0 to 100, the latest day with answers, with its change in points), presence (`mentionRate`, the share of answers that mention the brand, with the `mentions` and `answers` behind it) and average position (1 is first).
-- How those figures moved day by day: `findings.get_brand_overview_trend` (brand; `days` 7, 30 or 90, or `end_date` for a past window; `prompt_ids` to limit it to some tracked prompts). One row per day tracking ran.
-- The same figures for each AI assistant: `findings.get_brand_overview_trend_by_channel` (same inputs). An assistant that did not answer in the window is left out.
-- Across all their brands: `findings.get_portfolio_overview` (account-scoped, no brand needed).
-- AI-referral traffic: `findings.get_ai_traffic_insights` (brand).
+- Overall visibility snapshot / "how visible are we" / Overview attention: `findings-interpreter.get_overview_attention` (`accountBrandId`: selected ID; optional `days` 7, 30 or 90, default 30). Besides the attention items and how fresh the results are, it returns the three Overview figures for the window: the visibility score (0 to 100, the latest day with answers, with its change in points), presence (`mentionRate`, the share of answers that mention the brand, with the `mentions` and `answers` behind it) and average position (1 is first).
+- How those figures moved day by day: `findings-interpreter.get_brand_overview_trend` (`brand_id`: selected ID; `days` 7, 30 or 90, optionally `end_date` for a past window; `prompt_ids` to limit it to some tracked prompts). One row per day tracking ran.
+- The same figures for each AI assistant: `findings-interpreter.get_brand_overview_trend_by_channel` (same inputs, including `brand_id`). An assistant that did not answer in the window is left out.
+- Across all their brands: `findings-interpreter.get_portfolio_overview` (account-scoped, call with `{}`).
+- AI-referral traffic: `findings-interpreter.get_ai_traffic_insights` (`accountBrandId`: selected ID).
 
 ## Presenting results
 Lead with the story ("Across the assistants we track, Acme shows up most for X, rarely for Y…"), then the supporting numbers. Raw scores/percentages are fine — your audience is a technical operator. Never paste raw tool JSON. If a field comes back null, say it's "not available yet," not zero.

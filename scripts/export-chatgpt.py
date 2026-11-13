@@ -50,13 +50,17 @@ def encode_json(value):
     return (json.dumps(value, indent=2, ensure_ascii=False) + "\n").encode()
 
 
-def build(source, output):
+def build(source, output, tool_snapshot=None):
     source = source.resolve()
     require(git(source, "remote", "get-url", "origin").removesuffix(".git") in (
         REPOSITORY, "git@github.com:lanterninc/codex-plugins",
     ), "Source must be a checkout of lanterninc/codex-plugins")
     require(not git(source, "status", "--porcelain", "--untracked-files=all"),
             "Source checkout must be clean so SOURCE.json identifies the input")
+    subprocess.run(["node", str(source / "scripts/check-mcp-contracts.mjs"),
+                    "--snapshot", str(tool_snapshot.resolve() if tool_snapshot else
+                                      source / "export/chatgpt/mcp-input-schemas.json")],
+                   cwd=source, check=True)
     source_commit = git(source, "rev-parse", "HEAD")
     tracked = set(git(source, "ls-files", "-z").split("\0"))
     plugin = source / "plugins" / "lantern"
@@ -158,8 +162,8 @@ def build(source, output):
         "citations, competitors, products, website readiness, or AI referral traffic.\n---\n\n"
         "# Lantern analyst\n\n" + agent["developer_instructions"].strip() + "\n\n"
         "Consult the relevant sibling skills for current metric definitions and limitations. "
-        "The findings.* references identify Lantern's findings tools; hosts may expose them "
-        "under a findings-interpreter namespace or normalize punctuation. Match the operation "
+        "The findings-interpreter.* references identify canonical operations. Hosts may "
+        "normalize punctuation. Match the operation "
         "name and inspect its actual schema before calling it. Use only the read tools "
         "required for the user's question.\n"
     ).encode()
@@ -207,5 +211,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path, help="Clean checkout of the public codex-plugins repo")
     parser.add_argument("--output", type=Path, default=ROOT / "dist" / "chatgpt")
+    parser.add_argument("--tool-snapshot", type=Path, help="Fresh authenticated tools/list JSON for contract validation")
     args = parser.parse_args()
-    build(args.source, args.output)
+    build(args.source, args.output, args.tool_snapshot)
