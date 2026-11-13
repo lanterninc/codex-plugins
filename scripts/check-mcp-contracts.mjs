@@ -24,7 +24,11 @@ const contracts = new Map(tools.map(t => [t.name, t.inputSchema]));
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv);
 const files = [join(root, '.codex/agents/lantern-analyst.toml'), join(root, 'export/chatgpt/metadata.json')];
-for (const skill of readdirSync(join(root, 'plugins/lantern/skills'))) files.push(join(root, 'plugins/lantern/skills', skill, 'SKILL.md'));
+const marketplace = read(join(root, '.agents/plugins/marketplace.json'));
+for (const plugin of marketplace.plugins) {
+  const skillsPath = join(root, plugin.source.path, 'skills');
+  for (const skill of readdirSync(skillsPath)) files.push(join(skillsPath, skill, 'SKILL.md'));
+}
 const refs = new Set();
 for (const file of files) {
   const text = readFileSync(file, 'utf8');

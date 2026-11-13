@@ -19,8 +19,8 @@ inventory, integrity, and file contents before copying it to the destination.
 Ignored local files are excluded even when they sit inside a skill directory.
 CI retains the ZIP and checksum in the `lantern-chatgpt-plugin` artifact. In the
 public repository, run `npm run export:chatgpt -- .` to package the checked-out
-commit; its CI does the same. The source repository's integration CI uses a
-pinned public commit, which should be updated deliberately for newer releases.
+commit; its CI does the same. The source repository's integration CI validates the generated public tree and
+builds a ZIP from that exact tree, so packaging inputs cannot silently lag the source.
 
 Version 0.1.1 corrects the canonical tool namespace and per-tool inputs.
 `SOURCE.json` records the exact clean Git commit and packaged skill hashes.
