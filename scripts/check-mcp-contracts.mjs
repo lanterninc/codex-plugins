@@ -28,7 +28,7 @@ for (const skill of readdirSync(join(root, 'plugins/lantern/skills'))) files.pus
 const refs = new Set();
 for (const file of files) {
   const text = readFileSync(file, 'utf8');
-  if (/\bfindings\./.test(text)) throw new Error(`Obsolete tool namespace in ${file}`);
+  if (/\bfindings\.[a-z][a-z0-9_]*/.test(text)) throw new Error(`Obsolete tool namespace in ${file}`);
   for (const ref of text.match(/\b(?:findings-interpreter|account-manager)\.[a-z][a-z0-9_]*/g) ?? []) refs.add(ref);
 }
 const examples = read(examplesPath).calls;
