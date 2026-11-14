@@ -76,21 +76,29 @@ Regressions cover the former `accountBrandId`/`brand_id` mismatch, a removed
 operation, and mutually exclusive product identifiers. The saved schema file
 is a local regression baseline; it does not detect remote changes until refreshed.
 
-The five positive cases now bootstrap their own brand selection in a fresh
+The five positive cases bootstrap their own brand selection in a fresh
 conversation. Each populated-data case specifies its fixture prerequisites.
-Missing fixture data means **Blocked**, not a passing populated-data test.
+Missing required fixture data means **Blocked**, not a passing populated-data
+test. The combined visibility/comparison case requires populated visibility
+but explicitly covers a successful empty competitor response: the answer must
+say the comparison is unavailable, not invent competitors or infer zero market
+share. That branch does not establish a populated competitor-comparison pass.
 The three negative cases expect no tool call for unsupported actions. Current
 case status: **Not run on ChatGPT web or mobile**. Schema validation and a
 simulated instruction walkthrough must never be reported as end-to-end passes.
 
-Positive coverage: accessible brand selection; a combined visibility and
-competitor report; citation trends by AI assistant; a product summary followed
-by product detail; and latest website readiness with one recommendation.
+Positive coverage: accessible brand selection; visibility with a grounded
+comparison or an explicit explanation that comparison data is unavailable;
+citation trends by AI assistant; a product summary followed by an own-product
+detail; and latest website readiness with one recommendation. Product appearance
+lists can include rival or neutral products even with filter=recommended,
+because that filter applies only to matched catalogs. Select an ownership=own
+row for a request about the brand's products.
 Negative coverage: applying or publishing changes; unavailable per-product
 quality grades; and starting an analysis with a historical run comparison.
 
 Before recording, use a dedicated test account with sample data: at least one
-accessible brand, completed tracking, competitor citations, products, a site
+accessible brand, completed tracking, own-product appearances, a site
 analysis, and a queued recommendation. Do not record a real customer's private
 data. Reviewer credentials belong only in the secure portal fields, never in
 this repository, the ZIP, or the public demo.
@@ -140,6 +148,9 @@ review account and fixture. For each run retain platform/version, package Git
 commit, actual tool names and input/output evidence, date window, and result
 (Passed, Failed, Blocked or Not run). Repeat the populated-data cases to check
 consistency; recheck the pending-action fixture immediately before review.
+Run cases sequentially. If a tool returns HTTP 429, honor retry_after before
+retrying the same call; a rate-limit response does not pass a data-returning
+case. Do not launch all test cases as a burst or bypass account limits.
 Verify the demo and reviewer login against this version. Do not submit while
 any required run is failed, blocked or untested. The owner completes legal
 attestations. Submission and later publication are separate actions.
